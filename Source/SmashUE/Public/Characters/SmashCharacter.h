@@ -47,7 +47,10 @@ protected:
 #pragma region State Machine
 public:
 	void CreateStateMachine();
+	
 	void InitStateMachine();
+
+	void TickStateMachine(float DeltaTime) const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)

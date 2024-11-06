@@ -40,3 +40,8 @@ void USmashCharacterState::StateExit(ESmashCharacterStateID NextStateID)
 {
 	
 }
+
+void USmashCharacterState::StateTick(float DeltaTime)
+{
+	
+}
