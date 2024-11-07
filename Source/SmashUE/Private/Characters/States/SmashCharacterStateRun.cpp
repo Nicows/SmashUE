@@ -37,7 +37,7 @@ void USmashCharacterStateRun::StateExit(ESmashCharacterStateID NextStateID)
 void USmashCharacterStateRun::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
-	MoveCharacter(FVector::ForwardVector);
+	Character->AddMovementInput(FVector::ForwardVector * MoveSpeedMax, Character->GetOrientX());
 	GEngine->AddOnScreenDebugMessage(
 		-1,
 		3.f,
@@ -51,8 +51,3 @@ void USmashCharacterStateRun::ChangeStateAnim()
 	Super::ChangeStateAnim();
 }
 
-void USmashCharacterStateRun::MoveCharacter(FVector InVector)
-{
-	FVector Direction = FVector(Character->GetOrientX(), 0.0f, 0.0f);
-	Character->AddMovementInput(InVector * Direction * MoveSpeedMax);
-}

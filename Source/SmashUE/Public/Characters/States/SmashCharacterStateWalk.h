@@ -23,8 +23,6 @@ public:
 
 	virtual void ChangeStateAnim() override;
 
-	virtual void MoveCharacter(FVector InVector);
-
 	UPROPERTY(EditAnywhere)
 	float MoveSpeedMax = 250.f;
 };
