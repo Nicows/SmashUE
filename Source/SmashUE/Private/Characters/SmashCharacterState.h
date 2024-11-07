@@ -28,10 +28,16 @@ public:
 	virtual void StateExit(ESmashCharacterStateID NextStateID);
 
 	virtual void StateTick(float DeltaTime);
+
+	virtual void ChangeStateAnim();
 protected:
 	UPROPERTY()
 	TObjectPtr<ASmashCharacter> Character;
 
 	UPROPERTY()
 	TObjectPtr<USmashCharacterStateMachine> StateMachine;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UAnimMontage> AnimState;
+
 };

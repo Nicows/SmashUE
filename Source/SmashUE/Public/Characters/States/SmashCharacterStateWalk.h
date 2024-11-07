@@ -20,4 +20,11 @@ public:
 	virtual void StateExit(ESmashCharacterStateID NextStateID) override;
 	
 	virtual void StateTick(float DeltaTime) override;
+
+	virtual void ChangeStateAnim() override;
+
+	virtual void MoveForward(float Value);
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float MoveSpeedMax = 200.f;
 };
