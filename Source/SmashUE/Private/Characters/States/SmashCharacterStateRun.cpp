@@ -1,16 +1,15 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Characters/States/SmashCharacterStateWalk.h"
-
+#include "Characters/States/SmashCharacterStateRun.h"
 #include "Characters/SmashCharacter.h"
 
-ESmashCharacterStateID USmashCharacterStateWalk::GetStateID()
+ESmashCharacterStateID USmashCharacterStateRun::GetStateID()
 {
-	return ESmashCharacterStateID::Walk;
+	return ESmashCharacterStateID::Run;
 }
 
-void USmashCharacterStateWalk::StateEnter(ESmashCharacterStateID PreviousStateID)
+void USmashCharacterStateRun::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
 	Super::StateEnter(PreviousStateID);
 	ChangeStateAnim();
@@ -19,11 +18,11 @@ void USmashCharacterStateWalk::StateEnter(ESmashCharacterStateID PreviousStateID
 		-1,
 		3.f,
 		FColor::Cyan,
-		TEXT("Enter StateWalk")
+		TEXT("Enter StateRun")
 	);
 }
 
-void USmashCharacterStateWalk::StateExit(ESmashCharacterStateID NextStateID)
+void USmashCharacterStateRun::StateExit(ESmashCharacterStateID NextStateID)
 {
 	Super::StateExit(NextStateID);
 
@@ -31,28 +30,28 @@ void USmashCharacterStateWalk::StateExit(ESmashCharacterStateID NextStateID)
 		-1,
 		3.f,
 		FColor::Red,
-		TEXT("Exit StateWalk")
+		TEXT("Exit StateRun")
 	);
 }
 
-void USmashCharacterStateWalk::StateTick(float DeltaTime)
+void USmashCharacterStateRun::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
 	MoveCharacter(FVector::ForwardVector);
 	GEngine->AddOnScreenDebugMessage(
 		-1,
 		3.f,
-		FColor::Red,
-		TEXT("Tick StateWalk")
+		FColor::Green,
+		TEXT("Tick StateRun")
 	);
 }
 
-void USmashCharacterStateWalk::ChangeStateAnim()
+void USmashCharacterStateRun::ChangeStateAnim()
 {
 	Super::ChangeStateAnim();
 }
 
-void USmashCharacterStateWalk::MoveCharacter(FVector InVector)
+void USmashCharacterStateRun::MoveCharacter(FVector InVector)
 {
 	FVector Direction = FVector(Character->GetOrientX(), 0.0f, 0.0f);
 	Character->AddMovementInput(InVector * Direction * MoveSpeedMax);
