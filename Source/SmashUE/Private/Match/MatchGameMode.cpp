@@ -1,11 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Arena/ArenaPlayerStart.h"
-#include "Characters/SmashCharacter.h"
 #include "Match/MatchGameMode.h"
-
+#include "Arena/ArenaPlayerStart.h"
 #include "Arena/ArenaSettings.h"
+#include "Characters/SmashCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Characters/SmashCharacterSettings.h"
 
 void AMatchGameMode::FindPlayerStartActorsInArena(TArray<AArenaPlayerStart*>& ResultsActors)
 {
@@ -23,6 +23,9 @@ void AMatchGameMode::FindPlayerStartActorsInArena(TArray<AArenaPlayerStart*>& Re
 
 void AMatchGameMode::SpawnCharacter(const TArray<AArenaPlayerStart*>& SpawnPoints)
 {
+	USmashCharacterInputData* InputData = LoadinputDataFromConfig();
+	UInputMappingContext* InputMappingContext = LoadInputMappingContextFromConfig();
+	
 	for (AArenaPlayerStart* SpawnPoint : SpawnPoints)
 	{
 		EAutoReceiveInput::Type InputType = SpawnPoint->AutoReceiveInput.GetValue();
@@ -35,6 +38,8 @@ void AMatchGameMode::SpawnCharacter(const TArray<AArenaPlayerStart*>& SpawnPoint
 			);
 
 		if (NewCharacter == nullptr) continue;
+		NewCharacter->InputData = InputData;
+		NewCharacter->InputMappingContext = InputMappingContext;
 		NewCharacter->AutoPossessPlayer = SpawnPoint->AutoReceiveInput;
 		NewCharacter->SetOrientX(SpawnPoint->GetStartOrientX());
 		NewCharacter->FinishSpawning(SpawnPoint->GetTransform());
@@ -87,6 +92,20 @@ void AMatchGameMode::BeginPlay()
 			SmashCharacterClass->GetFName().ToString()
 		);
 	}
+}
+
+USmashCharacterInputData* AMatchGameMode::LoadinputDataFromConfig()
+{
+	const USmashCharacterSettings* CharacterSettings = GetDefault<USmashCharacterSettings>();
+	if (CharacterSettings == nullptr) return nullptr;
+	return CharacterSettings->InputData.LoadSynchronous();
+}
+
+UInputMappingContext* AMatchGameMode::LoadInputMappingContextFromConfig()
+{
+	const USmashCharacterSettings* CharacterSettings = GetDefault<USmashCharacterSettings>();
+	if (CharacterSettings == nullptr) return nullptr;
+	return CharacterSettings->InputMappingContext.LoadSynchronous();
 }
 
 
