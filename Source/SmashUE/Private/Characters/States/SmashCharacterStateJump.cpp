@@ -4,6 +4,7 @@
 #include "Characters/States/SmashCharacterStateJump.h"
 
 #include "Characters/SmashCharacter.h"
+#include "Characters/SmashCharacterStateMachine.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ESmashCharacterStateID USmashCharacterStateJump::GetStateID()
@@ -14,7 +15,8 @@ ESmashCharacterStateID USmashCharacterStateJump::GetStateID()
 void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
 	Super::StateEnter(PreviousStateID);
-	Character->GetCharacterMovement()->AddImpulse(FVector(0, 0, 1));
+	ChangeStateAnim();
+	Character->GetCharacterMovement()->AddImpulse(FVector::UpVector * JumpWalkSpeed, true);
 	GEngine->AddOnScreenDebugMessage(
 		-1,
 		2.f,
@@ -26,11 +28,22 @@ void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID
 void USmashCharacterStateJump::StateExit(ESmashCharacterStateID NextStateID)
 {
 	Super::StateExit(NextStateID);
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		2.f,
+		FColor::Red,
+		FString::Printf(TEXT("Exit State Jump"))
+	);
 }
 
 void USmashCharacterStateJump::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
+	if(Character->GetCharacterMovement()->IsFalling())
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::Fall);
+	}
 }
 
 void USmashCharacterStateJump::ChangeStateAnim()
