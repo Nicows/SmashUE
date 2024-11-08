@@ -23,6 +23,9 @@ public:
 
 	virtual void ChangeStateAnim() override;
 	
+	UFUNCTION()
+	void OnInputJump();
+	
 	UPROPERTY(EditAnywhere)
 	float MoveSpeedMax = 1000.f;
 };

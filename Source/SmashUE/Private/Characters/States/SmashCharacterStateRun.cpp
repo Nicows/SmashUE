@@ -16,6 +16,7 @@ void USmashCharacterStateRun::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
 	Super::StateEnter(PreviousStateID);
 	Character->GetCharacterMovement()->MaxWalkSpeed = MoveSpeedMax;
+	Character->InputJumpEvent.AddDynamic(this, &USmashCharacterStateRun::OnInputJump);
 	ChangeStateAnim();
 
 }
@@ -23,6 +24,7 @@ void USmashCharacterStateRun::StateEnter(ESmashCharacterStateID PreviousStateID)
 void USmashCharacterStateRun::StateExit(ESmashCharacterStateID NextStateID)
 {
 	Super::StateExit(NextStateID);
+	Character->InputJumpEvent.RemoveDynamic(this, &USmashCharacterStateRun::OnInputJump);
 
 }
 
@@ -44,5 +46,10 @@ void USmashCharacterStateRun::StateTick(float DeltaTime)
 void USmashCharacterStateRun::ChangeStateAnim()
 {
 	Super::ChangeStateAnim();
+}
+
+void USmashCharacterStateRun::OnInputJump()
+{
+	StateMachine->ChangeState(ESmashCharacterStateID::Jump);
 }
 
