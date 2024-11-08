@@ -4,6 +4,7 @@
 #include "Characters/States/SmashCharacterStateIdle.h"
 
 #include "Characters/SmashCharacter.h"
+#include "Characters/SmashCharacterSettings.h"
 #include "Characters/SmashCharacterStateMachine.h"
 
 ESmashCharacterStateID USmashCharacterStateIdle::GetStateID()
@@ -46,7 +47,7 @@ void USmashCharacterStateIdle::StateTick(float DeltaTime)
 		TEXT("Tick StateIdle")
 	);
 
-	if (FMath::Abs(Character->GetInputMoveX()) > 0.1f)
+	if (FMath::Abs(Character->GetInputMoveX()) > GetDefault<USmashCharacterSettings>()->InputMoveXThreshold)
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::Walk);
 	}

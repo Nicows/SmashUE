@@ -23,4 +23,7 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, Category = "Input")
 	TSoftObjectPtr<UInputMappingContext> InputMappingContext;
+	
+	UPROPERTY(Config, EditAnywhere, Category = "Input")
+	float InputMoveXThreshold = 0.1f;
 };
