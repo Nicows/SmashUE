@@ -27,5 +27,5 @@ public:
 	void OnInputMoveXFast(float InputMoveX);
 	
 	UFUNCTION()
-	void OnInputJump();
+	void OnInputJump(bool InputJump);
 };

@@ -40,7 +40,7 @@ void USmashCharacterStateJump::StateExit(ESmashCharacterStateID NextStateID)
 void USmashCharacterStateJump::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
-	if(Character->GetCharacterMovement()->IsFalling())
+	if(!Character->GetInputJump())
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::Fall);
 	}

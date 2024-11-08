@@ -101,6 +101,11 @@ float ASmashCharacter::GetInputMoveX() const
 	return InputMoveX;
 }
 
+float ASmashCharacter::GetInputJump() const
+{
+	return InputJump;
+}
+
 void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* EnhancedInputComponent)
 {
 	if (InputData == nullptr) return;
@@ -164,6 +169,7 @@ void ASmashCharacter::OnInputMoveXFast(const FInputActionValue& InputActionValue
 
 void ASmashCharacter::OnInputJump(const FInputActionValue& InputActionValue)
 {
-	InputJumpEvent.Broadcast();
+	InputJump = InputActionValue.Get<bool>();
+	InputJumpEvent.Broadcast(InputJump);
 }
 

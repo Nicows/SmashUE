@@ -49,7 +49,7 @@ void USmashCharacterStateIdle::OnInputMoveXFast(float InputMoveX)
 	StateMachine->ChangeState(ESmashCharacterStateID::Run);
 }
 
-void USmashCharacterStateIdle::OnInputJump()
+void USmashCharacterStateIdle::OnInputJump(bool InputJump)
 {
 	StateMachine->ChangeState(ESmashCharacterStateID::Jump);
 }

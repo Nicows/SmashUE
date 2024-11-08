@@ -56,7 +56,7 @@ void USmashCharacterStateWalk::OnInputMoveXFast(float InputMoveX)
 	StateMachine->ChangeState(ESmashCharacterStateID::Run);
 }
 
-void USmashCharacterStateWalk::OnInputJump()
+void USmashCharacterStateWalk::OnInputJump(bool InputJump)
 {
 	StateMachine->ChangeState(ESmashCharacterStateID::Jump);
 }

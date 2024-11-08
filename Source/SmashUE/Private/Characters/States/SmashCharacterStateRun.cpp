@@ -48,7 +48,7 @@ void USmashCharacterStateRun::ChangeStateAnim()
 	Super::ChangeStateAnim();
 }
 
-void USmashCharacterStateRun::OnInputJump()
+void USmashCharacterStateRun::OnInputJump(bool InputJump)
 {
 	StateMachine->ChangeState(ESmashCharacterStateID::Jump);
 }
