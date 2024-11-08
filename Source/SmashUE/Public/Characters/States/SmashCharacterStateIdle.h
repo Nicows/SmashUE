@@ -22,4 +22,7 @@ public:
 	virtual void StateTick(float DeltaTime) override;
 
 	virtual void ChangeStateAnim() override;
+
+	UFUNCTION()
+	void OnInputMoveXFast(float InputMoveX);
 };

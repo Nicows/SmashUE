@@ -25,4 +25,8 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float MoveSpeedMax = 250.f;
+
+	
+	UFUNCTION()
+	void OnInputMoveXFast(float InputMoveX);
 };
