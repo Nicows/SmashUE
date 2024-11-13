@@ -94,7 +94,7 @@ protected:
 	float InputMoveX = 0.f;
 	
 	UPROPERTY(EditAnywhere)
-	float InputJump;
+	bool InputJump;
 
 private:
 	void BindInputMoveXAxisAndActions(UEnhancedInputComponent* EnhancedInputComponent);

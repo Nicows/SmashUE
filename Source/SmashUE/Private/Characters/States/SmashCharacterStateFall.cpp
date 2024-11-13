@@ -4,6 +4,7 @@
 #include "Characters/States/SmashCharacterStateFall.h"
 
 #include "Characters/SmashCharacter.h"
+#include "Characters/SmashCharacterSettings.h"
 #include "Characters/SmashCharacterStateMachine.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -15,6 +16,8 @@ ESmashCharacterStateID USmashCharacterStateFall::GetStateID()
 void USmashCharacterStateFall::StateEnter(ESmashCharacterStateID PreviousStateID)
 {
 	Super::StateEnter(PreviousStateID);
+	ChangeStateAnim();
+	
 	Character->GetCharacterMovement()->AirControl = FallAirControl;
 	Character->GetCharacterMovement()->GravityScale = FallGravityScale;
 
@@ -38,6 +41,12 @@ void USmashCharacterStateFall::StateTick(float DeltaTime)
 	if(!Character->GetCharacterMovement()->IsFalling())
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
+	}
+	
+	if (FMath::Abs(Character->GetInputMoveX()) >= GetDefault<USmashCharacterSettings>()->InputMoveXThreshold)
+	{
+		Character->SetOrientX(Character->GetInputMoveX());
+		Character->AddMovementInput(FVector::ForwardVector, Character->GetOrientX());
 	}
 }
 

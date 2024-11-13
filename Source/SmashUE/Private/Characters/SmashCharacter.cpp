@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Characters/SmashCharacterInputData.h"
 #include "EnhancedInputComponent.h"
+#include "Camera/CameraWorldSubsystem.h"
 
 #include "Characters/SmashCharacterStateMachine.h"
 #include "Kismet/GameplayStatics.h"
@@ -22,8 +23,9 @@ void ASmashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	CreateStateMachine();
-	
 	InitStateMachine();
+
+	GetWorld()->GetSubsystem<UCameraWorldSubsystem>()->AddFollowTarget(this);
 }
 
 // Called every frame
@@ -149,7 +151,17 @@ void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* Enha
 	{
 		EnhancedInputComponent->BindAction(
 			InputData->InputActionJump,
-			ETriggerEvent::Started,
+			ETriggerEvent::Triggered,
+			this,
+			&ASmashCharacter::OnInputJump
+		);
+	}
+
+	if(InputData->InputActionJump)
+	{
+		EnhancedInputComponent->BindAction(
+			InputData->InputActionJump,
+			ETriggerEvent::Completed,
 			this,
 			&ASmashCharacter::OnInputJump
 		);
