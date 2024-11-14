@@ -3,6 +3,7 @@
 
 #include "Camera/CameraWorldSubsystem.h"
 
+#include "Algo/Accumulate.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -31,17 +32,33 @@ void UCameraWorldSubsystem::Tick(float DeltaTime)
 
 void UCameraWorldSubsystem::AddFollowTarget(UObject* FollowTarget)
 {
-	
+	FollowTargets.Add(FollowTarget);
 }
 
 void UCameraWorldSubsystem::RemoveFollowTarget(UObject* FollowTarget)
 {
-	
+	FollowTargets.Remove(FollowTarget);
 }
 
 void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 {
+	if(CameraMain == nullptr) return;
+
+	// Calculer la position moyenne entre les cibles
+	FVector AveragePosition = CalculateAveragePositionBetweenTargets();
+
+	// Vérifier si la position moyenne est valide
+	if (AveragePosition.IsZero()) return;
+
+	// Appliquer une interpolation douce pour déplacer la caméra vers la position cible
+	FVector CurrentCameraPosition = CameraMain->GetComponentLocation();
+	FVector NewCameraPosition = FMath::VInterpTo(CurrentCameraPosition, AveragePosition, DeltaTime, 3.0f);
+
+	// Contraindre la position aux limites de la caméra
+	ClampPositionIntoCameraBounds(NewCameraPosition);
 	
+	// Mettre à jour la position de la caméra
+	CameraMain->SetWorldLocation(NewCameraPosition);
 }
 
 AActor* UCameraWorldSubsystem::FindCameraBoundsActor()
@@ -49,14 +66,7 @@ AActor* UCameraWorldSubsystem::FindCameraBoundsActor()
 	TArray<AActor*> OutCameras;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "CameraBounds", OutCameras);
 	if (OutCameras.Num() > 0)
-	{
-		GEngine->AddOnScreenDebugMessage(
-		-1,
-		10.f,
-		FColor::Red,
-		FString::Printf(TEXT("Found Camera Bounds"))
-		);
-		
+	{		
 		return OutCameras[0];
 	}
 
@@ -83,7 +93,6 @@ void UCameraWorldSubsystem::ClampPositionIntoCameraBounds(FVector& Position)
 	FVector WorldBoundsMin = CalculateWorlPositionFromViewportPosition(ViewPortBoundsMin);
 	FVector WorldBoundsMax = CalculateWorlPositionFromViewportPosition(ViewportBoundsMax);
 
-	//TODO: Clamp Position according to WorldBounds
 	Position = ClampVector(Position, WorldBoundsMin, WorldBoundsMax);
 }
 
@@ -137,7 +146,19 @@ FVector UCameraWorldSubsystem::CalculateWorlPositionFromViewportPosition(const F
 
 FVector UCameraWorldSubsystem::CalculateAveragePositionBetweenTargets()
 {
-	return FVector::ZeroVector;
+	if(FollowTargets.Num() == 0) return FVector::ZeroVector;
+
+	FVector AveragePosition = FVector::ZeroVector;
+
+	for (UObject* OutTarget : FollowTargets)
+	{
+		if (AActor* ActorTarget = Cast<AActor>(OutTarget)) 
+		{
+			AveragePosition += ActorTarget->GetActorLocation();
+		}
+	}
+
+	return AveragePosition / FollowTargets.Num();
 }
 
 UCameraComponent* UCameraWorldSubsystem::FindCameraByTag(const FName& Tag) const
@@ -146,14 +167,10 @@ UCameraComponent* UCameraWorldSubsystem::FindCameraByTag(const FName& Tag) const
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), Tag, OutCameras);
 	if (OutCameras.Num() > 0)
 	{
-		GEngine->AddOnScreenDebugMessage(
-		-1,
-		10.f,
-		FColor::Red,
-		FString::Printf(TEXT("Found Camera"))
-		);
+		UCameraComponent* MainCameraToGet = OutCameras[0]->FindComponentByClass<UCameraComponent>();
+		if(MainCameraToGet == nullptr) return nullptr;
 		
-		return Cast<UCameraComponent>(OutCameras[0]);
+		return MainCameraToGet;
 	}
 
 	return nullptr;

@@ -17,6 +17,7 @@ class SMASHUE_API UCameraWorldSubsystem : public UTickableWorldSubsystem
 	GENERATED_BODY()
 	
 #pragma region Subsytem Overrides
+	
 public:
 	virtual void PostInitialize() override;
 
@@ -25,6 +26,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual TStatId GetStatId() const override { return TStatId(); };
+	
 #pragma endregion
 #pragma region Main Camera
 	
@@ -33,8 +35,10 @@ protected:
 	TObjectPtr<UCameraComponent> CameraMain;
 
 	UCameraComponent* FindCameraByTag(const FName& Tag) const;
+	
 #pragma endregion
 #pragma region Follow Targets
+	
 public:
 	void AddFollowTarget(UObject* FollowTarget);
 
@@ -45,13 +49,16 @@ protected:
 	TArray<UObject*> FollowTargets;
 
 	FVector CalculateAveragePositionBetweenTargets();
+	
 #pragma endregion
 #pragma region Misc
+	
 protected:
 	void TickUpdateCameraPosition(float DeltaTime);
 	
 #pragma endregion
 #pragma region Bounds
+	
 protected:
 	UPROPERTY()
 	FVector2D CameraBoundsMin;
