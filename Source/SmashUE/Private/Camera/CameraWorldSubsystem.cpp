@@ -2,9 +2,8 @@
 
 
 #include "Camera/CameraWorldSubsystem.h"
-
-#include "Algo/Accumulate.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/CameraFollowTarget.h"
 #include "Kismet/GameplayStatics.h"
 
 void UCameraWorldSubsystem::PostInitialize()
@@ -170,9 +169,10 @@ FVector UCameraWorldSubsystem::CalculateAveragePositionBetweenTargets()
 
 	for (UObject* OutTarget : FollowTargets)
 	{
-		if (AActor* ActorTarget = Cast<AActor>(OutTarget)) 
+		if (ICameraFollowTarget* FollowTarget = Cast<ICameraFollowTarget>(OutTarget)) 
 		{
-			AveragePosition += ActorTarget->GetActorLocation();
+			if(FollowTarget->IsFollowable())
+				AveragePosition += FollowTarget->GetFollowPosition();
 		}
 	}
 
