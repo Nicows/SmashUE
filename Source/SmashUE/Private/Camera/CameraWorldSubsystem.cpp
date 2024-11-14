@@ -22,12 +22,15 @@ void UCameraWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 	{
 		InitCameraBounds(CameraBoundsActor);
 	}
+
+	InitCameraZoomParameters();
 }
 
 void UCameraWorldSubsystem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	TickUpdateCameraPosition(DeltaTime);
+	TickUpdateCameraZoom(DeltaTime);
 }
 
 void UCameraWorldSubsystem::AddFollowTarget(UObject* FollowTarget)
@@ -38,6 +41,21 @@ void UCameraWorldSubsystem::AddFollowTarget(UObject* FollowTarget)
 void UCameraWorldSubsystem::RemoveFollowTarget(UObject* FollowTarget)
 {
 	FollowTargets.Remove(FollowTarget);
+}
+
+void UCameraWorldSubsystem::TickUpdateCameraZoom(float DeltaTime)
+{
+	if(CameraMain == nullptr) return;
+	float GreatestDistanceBetweenTargets = CalculateGreatestDistanceBetweenTargets();
+
+	//TODO: Find CurrentPercent of distance using:
+	// - CalculateGreatestDistanceBetweenTargets
+	// - CameraZoomDistanceBetweenTargetsMin
+	// - CameraZoomDistanceBetweenTargetsMax
+	//Spoiler: it's an InverseLerp but Unreal has no inverseLerp, try to find the name
+	//Dont forget to clamp your percent between 0 and 1
+
+	//TODo: Update Main Camera Y position with a lerp using CameraZoomYMin and CameraZoomYMax
 }
 
 void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
@@ -144,21 +162,39 @@ FVector UCameraWorldSubsystem::CalculateWorlPositionFromViewportPosition(const F
 	return WorldPosition;
 }
 
+void UCameraWorldSubsystem::InitCameraZoomParameters()
+{
+	//TODO: Find CameraDistanceMin (using tag) and Update CameraZoomYMin according to Y position if found
+	
+	//TODO: Find CameraDistanceMax (using tag) and Update CameraZoomYMax according to Y position if found
+	
+}
+
 FVector UCameraWorldSubsystem::CalculateAveragePositionBetweenTargets()
 {
 	if(FollowTargets.Num() == 0) return FVector::ZeroVector;
 
 	FVector AveragePosition = FVector::ZeroVector;
 
-	for (UObject* OutTarget : FollowTargets)
-	{
-		if (AActor* ActorTarget = Cast<AActor>(OutTarget)) 
-		{
-			AveragePosition += ActorTarget->GetActorLocation();
-		}
-	}
+	// for (UObject* OutTarget : FollowTargets)
+	// {
+	// 	if (AActor* ActorTarget = Cast<AActor>(OutTarget)) 
+	// 	{
+	// 		AveragePosition += ActorTarget->GetActorLocation();
+	// 	}
+	// }
 
 	return AveragePosition / FollowTargets.Num();
+}
+
+float UCameraWorldSubsystem::CalculateGreatestDistanceBetweenTargets()
+{
+	float GreatestDistance = 0.f;
+
+	//TODO: Iterate other FollowerTargets array to calculate greatest distance
+	//Spoiler your probably need two loops
+
+	return GreatestDistance;
 }
 
 UCameraComponent* UCameraWorldSubsystem::FindCameraByTag(const FName& Tag) const
@@ -176,3 +212,4 @@ UCameraComponent* UCameraWorldSubsystem::FindCameraByTag(const FName& Tag) const
 	return nullptr;
 
 }
+
