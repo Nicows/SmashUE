@@ -62,21 +62,13 @@ void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 {
 	if(CameraMain == nullptr) return;
 
-	// Calculer la position moyenne entre les cibles
 	FVector AveragePosition = CalculateAveragePositionBetweenTargets();
-
-	// Vérifier si la position moyenne est valide
 	if (AveragePosition.IsZero()) return;
 
-	// Appliquer une interpolation douce pour déplacer la caméra vers la position cible
-	FVector CurrentCameraPosition = CameraMain->GetComponentLocation();
-	FVector NewCameraPosition = FMath::VInterpTo(CurrentCameraPosition, AveragePosition, DeltaTime, 3.0f);
-
-	// Contraindre la position aux limites de la caméra
-	ClampPositionIntoCameraBounds(NewCameraPosition);
+	FVector CurrentCameraPosition = CameraMain->GetOwner()->GetActorLocation();
+	AveragePosition.Y = CurrentCameraPosition.Y;
 	
-	// Mettre à jour la position de la caméra
-	CameraMain->SetWorldLocation(NewCameraPosition);
+	CameraMain->GetOwner()->SetActorLocation(AveragePosition);
 }
 
 AActor* UCameraWorldSubsystem::FindCameraBoundsActor()
@@ -176,13 +168,13 @@ FVector UCameraWorldSubsystem::CalculateAveragePositionBetweenTargets()
 
 	FVector AveragePosition = FVector::ZeroVector;
 
-	// for (UObject* OutTarget : FollowTargets)
-	// {
-	// 	if (AActor* ActorTarget = Cast<AActor>(OutTarget)) 
-	// 	{
-	// 		AveragePosition += ActorTarget->GetActorLocation();
-	// 	}
-	// }
+	for (UObject* OutTarget : FollowTargets)
+	{
+		if (AActor* ActorTarget = Cast<AActor>(OutTarget)) 
+		{
+			AveragePosition += ActorTarget->GetActorLocation();
+		}
+	}
 
 	return AveragePosition / FollowTargets.Num();
 }
