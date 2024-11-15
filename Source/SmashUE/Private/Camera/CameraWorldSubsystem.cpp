@@ -65,9 +65,11 @@ void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 	if (AveragePosition.IsZero()) return;
 
 	FVector CurrentCameraPosition = CameraMain->GetOwner()->GetActorLocation();
-	AveragePosition.Y = CurrentCameraPosition.Y;
+	FVector NewPosition = FVector(AveragePosition.X, CurrentCameraPosition.Y, AveragePosition.Z);
 	
-	CameraMain->GetOwner()->SetActorLocation(AveragePosition);
+	ClampPositionIntoCameraBounds(NewPosition);
+	
+	CameraMain->GetOwner()->SetActorLocation(NewPosition);
 }
 
 AActor* UCameraWorldSubsystem::FindCameraBoundsActor()
@@ -88,31 +90,51 @@ void UCameraWorldSubsystem::InitCameraBounds(AActor* CameraBoundsActor)
 	FVector BoundsExtents;
 	CameraBoundsActor->GetActorBounds(false, BoundCenter, BoundsExtents);
 
-	CameraBoundsMin = FVector2D(BoundCenter.X - BoundsExtents.X, BoundCenter.Y - BoundsExtents.Y);
-	CameraBoundsMax = FVector2D(BoundCenter.X + BoundsExtents.X, BoundCenter.Y + BoundsExtents.Y);
-
+	CameraBoundsMin = FVector2D(BoundCenter.X - BoundsExtents.X, BoundCenter.Z - BoundsExtents.Z);
+	CameraBoundsMax = FVector2D(BoundCenter.X + BoundsExtents.X, BoundCenter.Z + BoundsExtents.Z);
+	
 	CameraBoundsYProjectionCenter = BoundCenter.Y;
+
+	UE_LOG(LogTemp, Warning, TEXT("CameraBoundsYProjectionCenter = %f"), CameraBoundsYProjectionCenter);
 }
 
 void UCameraWorldSubsystem::ClampPositionIntoCameraBounds(FVector& Position)
 {
-	FVector2D ViewPortBoundsMin, ViewportBoundsMax;
-	GetViewportBounds(ViewPortBoundsMin, ViewportBoundsMax);
+	FVector2D ViewPortBoundsMin, ViewPortBoundsMax;
+	GetViewportBounds(ViewPortBoundsMin, ViewPortBoundsMax);
 
 	FVector WorldBoundsMin = CalculateWorlPositionFromViewportPosition(ViewPortBoundsMin);
-	FVector WorldBoundsMax = CalculateWorlPositionFromViewportPosition(ViewportBoundsMax);
+	FVector WorldBoundsMax = CalculateWorlPositionFromViewportPosition(ViewPortBoundsMax);
+	
+	Position.X = FMath::Clamp(
+	Position.X,
+	CameraBoundsMin.X - WorldBoundsMin.X / 2,
+	CameraBoundsMax.X - WorldBoundsMax.X / 2
+	);
 
-	Position = ClampVector(Position, WorldBoundsMin, WorldBoundsMax);
+	Position.Z = FMath::Clamp(
+		Position.Z,
+		CameraBoundsMin.Y - WorldBoundsMax.Z / 2,
+		CameraBoundsMax.Y - WorldBoundsMin.Z / 2
+	);
+	
 }
 
 void UCameraWorldSubsystem::GetViewportBounds(FVector2D& OutViewportBoundsMin, FVector2D& OutViewportBoundsMax)
 {
 	//Find Viewport
 	UGameViewportClient* ViewportClient = GetWorld()->GetGameViewport();
-	if (ViewportClient == nullptr) return;
-
+	if (ViewportClient == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ViewportClient is nullptr"));
+		return;
+	}
 	FViewport* Viewport = ViewportClient->Viewport;
-	if (Viewport == nullptr) return;
+	if (Viewport == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Viewport inside ViewportClient is nullptr"));
+		return;
+	}
 
 	//calculate Viewport React according to Camera Aspect Ratio and Viewport ViewRect
 	FIntRect ViewRect(
@@ -132,7 +154,11 @@ void UCameraWorldSubsystem::GetViewportBounds(FVector2D& OutViewportBoundsMin, F
 
 FVector UCameraWorldSubsystem::CalculateWorlPositionFromViewportPosition(const FVector2D& ViewportPosition)
 {
-	if(CameraMain == nullptr) return FVector::Zero();
+	if(CameraMain == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CameraMain is nullptr"));
+		return FVector::ZeroVector;
+	}
 
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (PlayerController == nullptr) return FVector::Zero();

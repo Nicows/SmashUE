@@ -43,11 +43,6 @@ void USmashCharacterStateFall::StateTick(float DeltaTime)
 		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
 	}
 	
-	if (FMath::Abs(Character->GetInputMoveX()) >= GetDefault<USmashCharacterSettings>()->InputMoveXThreshold)
-	{
-		Character->SetOrientX(Character->GetInputMoveX());
-		Character->AddMovementInput(FVector::ForwardVector, Character->GetOrientX());
-	}
 }
 
 void USmashCharacterStateFall::ChangeStateAnim()

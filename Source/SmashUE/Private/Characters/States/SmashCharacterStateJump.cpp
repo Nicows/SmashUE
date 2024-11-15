@@ -23,14 +23,8 @@ void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID
 	Character->GetCharacterMovement()->JumpZVelocity = JumpWalkSpeed;
 	Character->JumpKeyHoldTime = 0;
 	Character->JumpMaxHoldTime = JumpDuration;
-	Character->Jump();
-	
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		2.f,
-		FColor::Green,
-		FString::Printf(TEXT("Enter State Jump"))
-	);
+	// Character->Jump();
+	Character->GetCharacterMovement()->AddImpulse(FVector::UpVector * JumpWalkSpeed * 1.5, true);
 }
 
 void USmashCharacterStateJump::StateExit(ESmashCharacterStateID NextStateID)
@@ -50,19 +44,15 @@ void USmashCharacterStateJump::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
 	Character->JumpKeyHoldTime += DeltaTime;
-	if(!Character->GetInputJump() || Character->JumpKeyHoldTime > Character->JumpMaxHoldTime)
+	if(!Character->GetInputJump() || Character->GetVelocity().Z < 0)
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::Fall);
 	}
-	
-	if(!Character->GetCharacterMovement()->IsFalling())
-		StateMachine->ChangeState(ESmashCharacterStateID::Idle);
-	
 
 	if (FMath::Abs(Character->GetInputMoveX()) >= GetDefault<USmashCharacterSettings>()->InputMoveXThreshold)
 	{
 		Character->SetOrientX(Character->GetInputMoveX());
-		Character->AddMovementInput(FVector::ForwardVector * JumpAirControl, Character->GetOrientX());
+		Character->AddMovementInput(FVector::ForwardVector, Character->GetOrientX());
 	}
 		
 	
