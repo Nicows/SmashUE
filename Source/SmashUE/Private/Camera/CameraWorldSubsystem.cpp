@@ -4,6 +4,7 @@
 #include "Camera/CameraWorldSubsystem.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/CameraFollowTarget.h"
+#include "Camera/CameraSettings.h"
 #include "Kismet/GameplayStatics.h"
 
 void UCameraWorldSubsystem::PostInitialize()
@@ -14,7 +15,7 @@ void UCameraWorldSubsystem::PostInitialize()
 void UCameraWorldSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
-	CameraMain = FindCameraByTag(TEXT("CameraMain"));
+	CameraMain = FindCameraByTag(GetDefault<UCameraSettings>()->CameraMainTag);
 
 	AActor* CameraBoundsActor = FindCameraBoundsActor();
 	if(CameraBoundsActor != nullptr)
@@ -42,38 +43,6 @@ void UCameraWorldSubsystem::RemoveFollowTarget(UObject* FollowTarget)
 	FollowTargets.Remove(FollowTarget);
 }
 
-void UCameraWorldSubsystem::TickUpdateCameraZoom(float DeltaTime)
-{
-	if(CameraMain == nullptr) return;
-	float GreatestDistanceBetweenTargets = CalculateGreatestDistanceBetweenTargets();
-
-	//TODO: Find CurrentPercent of distance using:
-	// - CalculateGreatestDistanceBetweenTargets
-	// - CameraZoomDistanceBetweenTargetsMin
-	// - CameraZoomDistanceBetweenTargetsMax
-	//Spoiler: it's an InverseLerp but Unreal has no inverseLerp, try to find the name
-	//Don't forget to clamp your percent between 0 and 1
-
-	//TODO: Update Main Camera Y position with a lerp using CameraZoomYMin and CameraZoomYMax
-
-	// Trouver le pourcentage actuel en fonction des distances min et max
-	float CurrentPercent = FMath::GetMappedRangeValueClamped(
-		FVector2D(CameraZoomDistanceBetweenTargetsMax, CameraZoomDistanceBetweenTargetsMin),
-		FVector2D(0.0f, 1.0f),
-		GreatestDistanceBetweenTargets
-	);
-
-	// Interpoler la position Y de la caméra en fonction du pourcentage
-	float NewCameraY = FMath::Lerp(CameraZoomYMin, CameraZoomYMax, CurrentPercent);
-
-	// Obtenir la position actuelle de la caméra et mettre à jour uniquement l'axe Y
-	FVector CurrentCameraPosition = CameraMain->GetOwner()->GetActorLocation();
-	FVector NewCameraPosition = FVector(CurrentCameraPosition.X, NewCameraY, CurrentCameraPosition.Z);
-
-	// Appliquer la nouvelle position à la caméra
-	CameraMain->GetOwner()->SetActorLocation(NewCameraPosition);
-}
-
 void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 {
 	if(CameraMain == nullptr) return;
@@ -85,14 +54,16 @@ void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
 	FVector NewPosition = FVector(AveragePosition.X, CurrentCameraPosition.Y, AveragePosition.Z);
 	
 	ClampPositionIntoCameraBounds(NewPosition);
-	
-	CameraMain->GetOwner()->SetActorLocation(NewPosition);
+
+	FVector SmoothedPosition = FMath::Lerp(CurrentCameraPosition, NewPosition, DeltaTime * GetDefault<UCameraSettings>()->PositionDampingFactor);
+
+	CameraMain->GetOwner()->SetActorLocation(SmoothedPosition);
 }
 
 AActor* UCameraWorldSubsystem::FindCameraBoundsActor()
 {
 	TArray<AActor*> OutCameras;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "CameraBounds", OutCameras);
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), GetDefault<UCameraSettings>()->CameraBoundsTag, OutCameras);
 	if (OutCameras.Num() > 0)
 	{		
 		return OutCameras[0];
@@ -197,18 +168,43 @@ FVector UCameraWorldSubsystem::CalculateWorldPositionFromViewportPosition(const 
 
 void UCameraWorldSubsystem::InitCameraZoomParameters()
 {
-	UCameraComponent* CameraDistanceMin = FindCameraByTag("CameraDistanceMin");
+	UCameraComponent* CameraDistanceMin = FindCameraByTag(GetDefault<UCameraSettings>()->CameraDistanceMinTag);
 	if(CameraDistanceMin != nullptr) 
 		CameraZoomYMin = CameraDistanceMin->GetComponentLocation().Y;
 	else
 		UE_LOG(LogTemp, Warning, TEXT("CameraDistanceMin not found"));
 	
-	UCameraComponent* CameraDistanceMax = FindCameraByTag("CameraDistanceMax");
+	UCameraComponent* CameraDistanceMax = FindCameraByTag(GetDefault<UCameraSettings>()->CameraDistanceMaxTag);
 	if(CameraDistanceMax != nullptr)
 		CameraZoomYMax = CameraDistanceMax->GetComponentLocation().Y;
 	else
 		UE_LOG(LogTemp, Warning, TEXT("CameraDistanceMax not found"));
 
+}
+
+void UCameraWorldSubsystem::TickUpdateCameraZoom(float DeltaTime)
+{
+	if(CameraMain == nullptr) return;
+	float GreatestDistanceBetweenTargets = CalculateGreatestDistanceBetweenTargets();
+
+
+	// Trouver le pourcentage actuel en fonction des distances min et max
+	float CurrentPercent = FMath::GetMappedRangeValueClamped(
+		FVector2D(CameraZoomDistanceBetweenTargetsMax, CameraZoomDistanceBetweenTargetsMin),
+		FVector2D(0.0f, 1.0f),
+		GreatestDistanceBetweenTargets
+	);
+
+	// Interpoler la position Y de la caméra en fonction du pourcentage
+	float NewCameraY = FMath::Lerp(CameraZoomYMin, CameraZoomYMax, CurrentPercent);
+
+	// Obtenir la position actuelle de la caméra et mettre à jour uniquement l'axe Y
+	FVector CurrentCameraPosition = CameraMain->GetOwner()->GetActorLocation();
+	FVector NewCameraPosition = FVector(CurrentCameraPosition.X, NewCameraY, CurrentCameraPosition.Z);
+
+	FVector SmoothedPosition = FMath::Lerp(CurrentCameraPosition, NewCameraPosition, DeltaTime * GetDefault<UCameraSettings>()->SizeDampingFactor);
+	// Appliquer la nouvelle position à la caméra
+	CameraMain->GetOwner()->SetActorLocation(SmoothedPosition);
 }
 
 FVector UCameraWorldSubsystem::CalculateAveragePositionBetweenTargets()
@@ -260,6 +256,12 @@ float UCameraWorldSubsystem::CalculateGreatestDistanceBetweenTargets()
 			}
 		}
 	}
+	// Clamp distance min and max using GetDefault<UCameraSettings>()
+	GreatestDistance = FMath::Clamp(
+	GreatestDistance,
+	GetDefault<UCameraSettings>()->DistanceBetweenTargetsMin,
+	GetDefault<UCameraSettings>()->DistanceBetweenTargetsMax
+	);
 
 	return GreatestDistance;
 }
