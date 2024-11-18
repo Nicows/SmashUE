@@ -52,9 +52,26 @@ void UCameraWorldSubsystem::TickUpdateCameraZoom(float DeltaTime)
 	// - CameraZoomDistanceBetweenTargetsMin
 	// - CameraZoomDistanceBetweenTargetsMax
 	//Spoiler: it's an InverseLerp but Unreal has no inverseLerp, try to find the name
-	//Dont forget to clamp your percent between 0 and 1
+	//Don't forget to clamp your percent between 0 and 1
 
-	//TODo: Update Main Camera Y position with a lerp using CameraZoomYMin and CameraZoomYMax
+	//TODO: Update Main Camera Y position with a lerp using CameraZoomYMin and CameraZoomYMax
+
+	// Trouver le pourcentage actuel en fonction des distances min et max
+	float CurrentPercent = FMath::GetMappedRangeValueClamped(
+		FVector2D(CameraZoomDistanceBetweenTargetsMax, CameraZoomDistanceBetweenTargetsMin),
+		FVector2D(0.0f, 1.0f),
+		GreatestDistanceBetweenTargets
+	);
+
+	// Interpoler la position Y de la caméra en fonction du pourcentage
+	float NewCameraY = FMath::Lerp(CameraZoomYMin, CameraZoomYMax, CurrentPercent);
+
+	// Obtenir la position actuelle de la caméra et mettre à jour uniquement l'axe Y
+	FVector CurrentCameraPosition = CameraMain->GetOwner()->GetActorLocation();
+	FVector NewCameraPosition = FVector(CurrentCameraPosition.X, NewCameraY, CurrentCameraPosition.Z);
+
+	// Appliquer la nouvelle position à la caméra
+	CameraMain->GetOwner()->SetActorLocation(NewCameraPosition);
 }
 
 void UCameraWorldSubsystem::TickUpdateCameraPosition(float DeltaTime)
@@ -95,7 +112,6 @@ void UCameraWorldSubsystem::InitCameraBounds(AActor* CameraBoundsActor)
 	
 	CameraBoundsYProjectionCenter = BoundCenter.Y;
 
-	UE_LOG(LogTemp, Warning, TEXT("CameraBoundsYProjectionCenter = %f"), CameraBoundsYProjectionCenter);
 }
 
 void UCameraWorldSubsystem::ClampPositionIntoCameraBounds(FVector& Position)
@@ -103,8 +119,8 @@ void UCameraWorldSubsystem::ClampPositionIntoCameraBounds(FVector& Position)
 	FVector2D ViewPortBoundsMin, ViewPortBoundsMax;
 	GetViewportBounds(ViewPortBoundsMin, ViewPortBoundsMax);
 
-	FVector WorldBoundsMin = CalculateWorlPositionFromViewportPosition(ViewPortBoundsMin);
-	FVector WorldBoundsMax = CalculateWorlPositionFromViewportPosition(ViewPortBoundsMax);
+	FVector WorldBoundsMin = CalculateWorldPositionFromViewportPosition(ViewPortBoundsMin);
+	FVector WorldBoundsMax = CalculateWorldPositionFromViewportPosition(ViewPortBoundsMax);
 	
 	Position.X = FMath::Clamp(
 	Position.X,
@@ -152,7 +168,7 @@ void UCameraWorldSubsystem::GetViewportBounds(FVector2D& OutViewportBoundsMin, F
 	
 }
 
-FVector UCameraWorldSubsystem::CalculateWorlPositionFromViewportPosition(const FVector2D& ViewportPosition)
+FVector UCameraWorldSubsystem::CalculateWorldPositionFromViewportPosition(const FVector2D& ViewportPosition)
 {
 	if(CameraMain == nullptr)
 	{
@@ -181,10 +197,18 @@ FVector UCameraWorldSubsystem::CalculateWorlPositionFromViewportPosition(const F
 
 void UCameraWorldSubsystem::InitCameraZoomParameters()
 {
-	//TODO: Find CameraDistanceMin (using tag) and Update CameraZoomYMin according to Y position if found
+	UCameraComponent* CameraDistanceMin = FindCameraByTag("CameraDistanceMin");
+	if(CameraDistanceMin != nullptr) 
+		CameraZoomYMin = CameraDistanceMin->GetComponentLocation().Y;
+	else
+		UE_LOG(LogTemp, Warning, TEXT("CameraDistanceMin not found"));
 	
-	//TODO: Find CameraDistanceMax (using tag) and Update CameraZoomYMax according to Y position if found
-	
+	UCameraComponent* CameraDistanceMax = FindCameraByTag("CameraDistanceMax");
+	if(CameraDistanceMax != nullptr)
+		CameraZoomYMax = CameraDistanceMax->GetComponentLocation().Y;
+	else
+		UE_LOG(LogTemp, Warning, TEXT("CameraDistanceMax not found"));
+
 }
 
 FVector UCameraWorldSubsystem::CalculateAveragePositionBetweenTargets()
@@ -209,8 +233,33 @@ float UCameraWorldSubsystem::CalculateGreatestDistanceBetweenTargets()
 {
 	float GreatestDistance = 0.f;
 
-	//TODO: Iterate other FollowerTargets array to calculate greatest distance
-	//Spoiler your probably need two loops
+	// Parcourir toutes les cibles de suivi
+	for (int32 i = 0; i < FollowTargets.Num(); ++i)
+	{
+		if (ICameraFollowTarget* TargetA = Cast<ICameraFollowTarget>(FollowTargets[i]))
+		{
+			if (!TargetA->IsFollowable()) continue;
+
+			FVector PositionA = TargetA->GetFollowPosition();
+
+			// Comparer avec toutes les autres cibles
+			for (int32 j = i + 1; j < FollowTargets.Num(); ++j)
+			{
+				if (ICameraFollowTarget* TargetB = Cast<ICameraFollowTarget>(FollowTargets[j]))
+				{
+					if (!TargetB->IsFollowable()) continue;
+
+					FVector PositionB = TargetB->GetFollowPosition();
+
+					// Calculer la distance entre les deux cibles
+					float Distance = FVector::Dist(PositionA, PositionB);
+
+					// Mettre à jour la plus grande distance trouvée
+					GreatestDistance = FMath::Max(GreatestDistance, Distance);
+				}
+			}
+		}
+	}
 
 	return GreatestDistance;
 }

@@ -81,7 +81,7 @@ protected:
 
 	void GetViewportBounds(FVector2D& OutViewportBoundsMin, FVector2D& OutViewportBoundsMax);
 
-	FVector CalculateWorlPositionFromViewportPosition(const FVector2D& ViewportPosition);
+	FVector CalculateWorldPositionFromViewportPosition(const FVector2D& ViewportPosition);
 
 #pragma endregion
 #pragma region Zoom
