@@ -27,7 +27,9 @@ protected:
 	TArray<ASmashCharacter*> CharactersInsideArena;
 	
 private:
-	USmashCharacterInputData* LoadinputDataFromConfig();
+	void CreateAndInitPlayers() const;
+	
+	USmashCharacterInputData* LoadInputDataFromConfig();
 
 	UInputMappingContext* LoadInputMappingContextFromConfig();
 	

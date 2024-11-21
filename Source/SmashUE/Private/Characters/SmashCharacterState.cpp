@@ -23,13 +23,6 @@ void USmashCharacterState::StateInit(USmashCharacterStateMachine* InStateMachine
 {
 	StateMachine = InStateMachine;
 	Character = InStateMachine->GetCharacter();
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		2.f,
-		FColor::Magenta,
-		FString::Printf(TEXT("Init State %d"), GetStateID())
-	);
 }
 
 void USmashCharacterState::StateEnter(ESmashCharacterStateID PreviousStateID)
@@ -50,5 +43,5 @@ void USmashCharacterState::StateTick(float DeltaTime)
 void USmashCharacterState::ChangeStateAnim()
 {
 	if(AnimState == nullptr) return;
-	Character->PlayAnimMontage(AnimState);
+		Character->PlayAnimMontage(AnimState);
 }

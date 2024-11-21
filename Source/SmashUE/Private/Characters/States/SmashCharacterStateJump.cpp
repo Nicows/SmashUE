@@ -17,27 +17,17 @@ void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID
 {
 	Super::StateEnter(PreviousStateID);
 	
-	
 	ChangeStateAnim();
 	Character->GetCharacterMovement()->AirControl = JumpAirControl;
-	Character->GetCharacterMovement()->JumpZVelocity = JumpWalkSpeed;
-	Character->JumpKeyHoldTime = 0;
-	Character->JumpMaxHoldTime = JumpDuration;
-	// Character->Jump();
-	Character->GetCharacterMovement()->AddImpulse(FVector::UpVector * JumpWalkSpeed * 1.5, true);
+	Character->GetCharacterMovement()->JumpZVelocity = (2 * JumpMaxHeight) / (JumpDuration / 2);
+	Character->GetCharacterMovement()->MaxWalkSpeed = JumpWalkSpeed;
+	Character->Jump();
 }
 
 void USmashCharacterStateJump::StateExit(ESmashCharacterStateID NextStateID)
 {
 	Super::StateExit(NextStateID);
 	Character->StopJumping();
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		2.f,
-		FColor::Red,
-		FString::Printf(TEXT("Exit State Jump"))
-	);
 }
 
 void USmashCharacterStateJump::StateTick(float DeltaTime)

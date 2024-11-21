@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Characters/SmashCharacterInputData.h"
 #include "EnhancedInputComponent.h"
+#include "LocalMultiplayerGameViewportClient.h"
 #include "Camera/CameraWorldSubsystem.h"
 
 #include "Characters/SmashCharacterStateMachine.h"
@@ -41,7 +42,7 @@ void ASmashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	SetupMappingContextIntoController();
+	// SetupMappingContextIntoController();
 
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (EnhancedInputComponent == nullptr) return;
@@ -79,19 +80,31 @@ void ASmashCharacter::InitStateMachine()
 
 void ASmashCharacter::TickStateMachine(float DeltaTime) const
 {
-	if(StateMachine == nullptr) return;
+	if(StateMachine == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("State machine not found %s"), *this->GetClass()->GetName());
+		return;
+	}
 	StateMachine->Tick(DeltaTime);
 	
 }
 
 void ASmashCharacter::SetupMappingContextIntoController() const
 {
+	return; //unused
 	APlayerController* PlayerController = Cast<APlayerController>(Controller);
-	if (PlayerController == nullptr) return;
-
+	if (PlayerController == nullptr) {
+		UE_LOG(LogTemp, Warning, TEXT("PlayerController not found"));
+		return;
+	}
+	
 	ULocalPlayer* Player = PlayerController->GetLocalPlayer();
-	if (Player == nullptr) return;
-
+	if (Player == nullptr)
+		{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerController->GetLocalPlayer not found"));
+		return;
+	}
+	   
 	UEnhancedInputLocalPlayerSubsystem* InputSystem = Player->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	if (InputSystem == nullptr) return;
 
@@ -146,6 +159,7 @@ void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* Enha
 			&ASmashCharacter::OnInputMoveXFast
 		);
 	}
+
 	
 	if(InputData->InputActionJump)
 	{

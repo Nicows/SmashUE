@@ -1,6 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Match/MatchGameMode.h"
+
+#include "LocalMultiplayerSettings.h"
+#include "LocalMultiplayerSubsystem.h"
 #include "Arena/ArenaPlayerStart.h"
 #include "Arena/ArenaSettings.h"
 #include "Characters/SmashCharacter.h"
@@ -23,30 +26,55 @@ void AMatchGameMode::FindPlayerStartActorsInArena(TArray<AArenaPlayerStart*>& Re
 
 void AMatchGameMode::SpawnCharacter(const TArray<AArenaPlayerStart*>& SpawnPoints)
 {
-	USmashCharacterInputData* InputData = LoadinputDataFromConfig();
-	UInputMappingContext* InputMappingContext = LoadInputMappingContextFromConfig();
-	
-	for (AArenaPlayerStart* SpawnPoint : SpawnPoints)
-	{
-		EAutoReceiveInput::Type InputType = SpawnPoint->AutoReceiveInput.GetValue();
-		TSubclassOf<ASmashCharacter> SmashCharacterClass = GetSmashCharacterClassFromInputType(InputType);
-		if (SmashCharacterClass == nullptr) continue;
+	USmashCharacterInputData* InputData = LoadInputDataFromConfig();
 
+	if (SpawnPoints.IsEmpty()) return;
+	
+	// Associe chaque joueur local à un point de spawn
+	for (int32 PlayerIndex = 0; PlayerIndex < SpawnPoints.Num(); PlayerIndex++)
+	{
+		if (!SpawnPoints.IsValidIndex(PlayerIndex)) continue;
+
+		AArenaPlayerStart* SpawnPoint = SpawnPoints[PlayerIndex];
+		EAutoReceiveInput::Type InputType = SpawnPoint->AutoReceiveInput.GetValue();
+
+		// Détermine la classe de personnage à spawn pour ce type d'entrée
+		TSubclassOf<ASmashCharacter> SmashCharacterClass = GetSmashCharacterClassFromInputType(InputType);
+		if (!SmashCharacterClass) continue;
+
+		// Spawn le personnage
 		ASmashCharacter* NewCharacter = GetWorld()->SpawnActorDeferred<ASmashCharacter>(
 			SmashCharacterClass,
 			SpawnPoint->GetTransform()
-			);
+		);
 
-		if (NewCharacter == nullptr) continue;
+		if (!NewCharacter) continue;
+
+		// Configure le personnage
 		NewCharacter->InputData = InputData;
-		NewCharacter->InputMappingContext = InputMappingContext;
 		NewCharacter->AutoPossessPlayer = SpawnPoint->AutoReceiveInput;
 		NewCharacter->SetOrientX(SpawnPoint->GetStartOrientX());
-		NewCharacter->FinishSpawning(SpawnPoint->GetTransform());
 
+		// Associe le joueur local au personnage
+		
+
+		APlayerController* PlayerController = GetGameInstance()->GetLocalPlayerByIndex(PlayerIndex)->GetPlayerController(GetGameInstance()->GetWorld());
+
+		
+		if (PlayerController == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("PlayerController %d not found in AMatchGameMode::SpawnCharacter"), PlayerIndex);
+		}
+		else
+		{
+			PlayerController->Possess(NewCharacter);
+		}
+
+		NewCharacter->FinishSpawning(SpawnPoint->GetTransform());
 		CharactersInsideArena.Add(NewCharacter);
 	}
 }
+
 
 TSubclassOf<ASmashCharacter> AMatchGameMode::GetSmashCharacterClassFromInputType(
 	EAutoReceiveInput::Type InputType) const
@@ -74,6 +102,7 @@ TSubclassOf<ASmashCharacter> AMatchGameMode::GetSmashCharacterClassFromInputType
 void AMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	CreateAndInitPlayers();
 
 	TArray<AArenaPlayerStart*> PlayerStartPoints;
 	FindPlayerStartActorsInArena(PlayerStartPoints);
@@ -94,7 +123,18 @@ void AMatchGameMode::BeginPlay()
 	}
 }
 
-USmashCharacterInputData* AMatchGameMode::LoadinputDataFromConfig()
+void AMatchGameMode::CreateAndInitPlayers() const
+{
+	UGameInstance* GameInstance = GetWorld()->GetGameInstance();
+	if(GameInstance == nullptr) return;
+
+	ULocalMultiplayerSubsystem* LocalMultiplayerSubsystem = GameInstance->GetSubsystem<ULocalMultiplayerSubsystem>();
+	if (LocalMultiplayerSubsystem == nullptr) return;
+
+	LocalMultiplayerSubsystem->CreateAndInitPlayers(ELocalMultiplayerInputMappingType::InGame);
+}
+
+USmashCharacterInputData* AMatchGameMode::LoadInputDataFromConfig()
 {
 	const USmashCharacterSettings* CharacterSettings = GetDefault<USmashCharacterSettings>();
 	if (CharacterSettings == nullptr) return nullptr;
