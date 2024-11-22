@@ -6,6 +6,7 @@
 #include "Characters/SmashCharacter.h"
 #include "Characters/SmashCharacterSettings.h"
 #include "Characters/SmashCharacterStateMachine.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ESmashCharacterStateID USmashCharacterStateIdle::GetStateID()
 {
@@ -51,5 +52,6 @@ void USmashCharacterStateIdle::OnInputMoveXFast(float InputMoveX)
 
 void USmashCharacterStateIdle::OnInputJump(bool InputJump)
 {
-	StateMachine->ChangeState(ESmashCharacterStateID::Jump);
+	if(Character->GetCharacterMovement()->IsMovingOnGround())
+		StateMachine->ChangeState(ESmashCharacterStateID::Jump);
 }
