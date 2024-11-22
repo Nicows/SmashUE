@@ -63,7 +63,8 @@ void ASmashCharacter::SetOrientX(float NewOrientX)
 void ASmashCharacter::RotateMeshUsingOrientX() const
 {
 	FRotator Rotation = GetMesh()->GetRelativeRotation();
-	Rotation.Yaw = -90.f * OrientX;
+	// Rotation.Yaw = -90.f * OrientX;
+	Rotation.Yaw = OrientX < 0 ? 90.f : -90.f ;
 	
 	GetMesh()->SetRelativeRotation(Rotation);
 }
