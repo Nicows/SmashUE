@@ -18,7 +18,6 @@ bool ULocalMultiplayerGameViewportClient::InputKey(const FInputKeyEventArgs& Eve
 	if(GameInstance == nullptr)
 		return false;
 
-	
 	const ULocalMultiplayerSettings* LocalMultiplayerSettings = GetDefault<ULocalMultiplayerSettings>();
 	ULocalMultiplayerSubsystem* LocalMultiplayerSubsystem = GameInstance->GetSubsystem<ULocalMultiplayerSubsystem>();
 	
@@ -41,7 +40,6 @@ bool ULocalMultiplayerGameViewportClient::InputKey(const FInputKeyEventArgs& Eve
 	ULocalPlayer* LocalPlayer = GameInstance->GetLocalPlayerByIndex(PlayerIndex);
 	if (LocalPlayer == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("LocalPlayer == nullptr, PlayerIndex = %d, "), PlayerIndex);
 		return false;
 	}
 	
@@ -51,7 +49,7 @@ bool ULocalMultiplayerGameViewportClient::InputKey(const FInputKeyEventArgs& Eve
 		UE_LOG(LogTemp, Warning, TEXT("PlayerController == nullptr, PlayerIndex = %d, "), PlayerIndex);
 		return false;
 	}
-	UE_LOG(LogTemp, Display, TEXT("ULocalMultiplayerGameViewportClient::InputKey, InputKey: Key = %s, PlayerIndex = %d, "), *EventArgs.Key.ToString(), PlayerIndex);
+	// UE_LOG(LogTemp, Display, TEXT("ULocalMultiplayerGameViewportClient::InputKey, InputKey: Key = %s, PlayerIndex = %d, "), *EventArgs.Key.ToString(), PlayerIndex);
 	return PlayerController->InputKey(EventArgs.Key, EventArgs.Event, EventArgs.AmountDepressed, EventArgs.IsGamepad());
 	
 }
@@ -73,7 +71,7 @@ bool ULocalMultiplayerGameViewportClient::InputAxis(FViewport* InViewport, FInpu
 
 	APlayerController* PlayerController = LocalPlayer->GetPlayerController(GameInstance->GetWorld());
 	if (PlayerController == nullptr) return false;
-	UE_LOG(LogTemp, Display, TEXT("ULocalMultiplayerGameViewportClient::InputAxis, InputKey: Key = %s, PlayerIndex = %d, "), *Key.ToString(), PlayerIndex);
+	// UE_LOG(LogTemp, Display, TEXT("ULocalMultiplayerGameViewportClient::InputAxis, InputKey: Key = %s, PlayerIndex = %d, "), *Key.ToString(), PlayerIndex);
 	return PlayerController->InputAxis(Key, Delta, DeltaTime, NumSamples, bGamepad);
 }
 
