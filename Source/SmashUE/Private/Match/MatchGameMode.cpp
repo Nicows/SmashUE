@@ -40,7 +40,7 @@ void AMatchGameMode::SpawnCharacter(const TArray<AArenaPlayerStart*>& SpawnPoint
 
 		// Détermine la classe de personnage à spawn pour ce type d'entrée
 		TSubclassOf<ASmashCharacter> SmashCharacterClass = GetSmashCharacterClassFromInputType(InputType);
-		if (!SmashCharacterClass) continue;
+		if (SmashCharacterClass == nullptr) continue;
 
 		// Spawn le personnage
 		ASmashCharacter* NewCharacter = GetWorld()->SpawnActorDeferred<ASmashCharacter>(
@@ -48,7 +48,7 @@ void AMatchGameMode::SpawnCharacter(const TArray<AArenaPlayerStart*>& SpawnPoint
 			SpawnPoint->GetTransform()
 		);
 
-		if (!NewCharacter) continue;
+		if (NewCharacter == nullptr) continue;
 
 		// Configure le personnage
 		NewCharacter->InputData = InputData;
