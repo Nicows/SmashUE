@@ -31,10 +31,12 @@ bool ULocalMultiplayerGameViewportClient::InputKey(const FInputKeyEventArgs& Eve
 	if(PlayerIndex < 0 && KeyboardProfileIndex > 0 && !EventArgs.IsGamepad())
 	{
 		PlayerIndex = LocalMultiplayerSubsystem->AssignNewPlayerToKeyboardProfile(KeyboardProfileIndex);
+		LocalMultiplayerSubsystem->AssignKeyboardMapping(PlayerIndex, KeyboardProfileIndex, ELocalMultiplayerInputMappingType::InGame);
 	}
 	else if(PlayerIndex < 0 && EventArgs.IsGamepad())
 	{
 		PlayerIndex = LocalMultiplayerSubsystem->AssignNewPlayerToGamepadDeviceID(EventArgs.InputDevice.GetId());
+		LocalMultiplayerSubsystem->AssignGamepadInputMapping(PlayerIndex, ELocalMultiplayerInputMappingType::InGame);
 	}
 	
 	ULocalPlayer* LocalPlayer = GameInstance->GetLocalPlayerByIndex(PlayerIndex);
