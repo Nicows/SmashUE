@@ -49,6 +49,8 @@ void USmashCharacterStateWalk::StateTick(float DeltaTime)
 void USmashCharacterStateWalk::ChangeStateAnim()
 {
 	Super::ChangeStateAnim();
+	if(AnimState == nullptr) return;
+		Character->PlayAnimMontage(AnimState);
 }
 
 void USmashCharacterStateWalk::OnInputMoveXFast(float InputMoveX)

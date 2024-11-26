@@ -21,12 +21,14 @@ void USmashCharacterStateFall::StateEnter(ESmashCharacterStateID PreviousStateID
 	Character->GetCharacterMovement()->AirControl = FallAirControl;
 	Character->GetCharacterMovement()->GravityScale = FallGravityScale;
 	Character->GetCharacterMovement()->MaxWalkSpeed = FallHorizontalMoveSpeed;
+	Character->InputJumpEvent.AddDynamic(this, &USmashCharacterStateFall::OnInputJump);
 }
 
 void USmashCharacterStateFall::StateExit(ESmashCharacterStateID NextStateID)
 {
 	Super::StateExit(NextStateID);
 	Character->GetCharacterMovement()->GravityScale = 1;
+	Character->InputJumpEvent.RemoveDynamic(this, &USmashCharacterStateFall::OnInputJump);
 }
 
 void USmashCharacterStateFall::StateTick(float DeltaTime)
@@ -38,8 +40,7 @@ void USmashCharacterStateFall::StateTick(float DeltaTime)
 	}
 	if (FMath::Abs(Character->GetInputMoveX()) >= GetDefault<USmashCharacterSettings>()->InputMoveXThreshold)
 	{
-		Character->SetOrientX(Character->GetInputMoveX());
-		Character->AddMovementInput(FVector::ForwardVector, Character->GetOrientX());
+		Character->AddMovementInput(FVector::ForwardVector, Character->GetInputMoveX());
 	}
 	
 }
@@ -47,4 +48,15 @@ void USmashCharacterStateFall::StateTick(float DeltaTime)
 void USmashCharacterStateFall::ChangeStateAnim()
 {
 	Super::ChangeStateAnim();
+	if(AnimState == nullptr) return;
+		Character->PlayAnimMontage(AnimState);
+}
+
+void USmashCharacterStateFall::OnInputJump(bool InputJump)
+{
+	UE_LOG(LogTemp, Display, TEXT("USmashCharacterStateFall::OnInputJump: JumpCurrentCount %d, JumpMaxCount %d, InputJump %d"), Character->JumpCurrentCount, Character->JumpMaxCount, InputJump);
+	if(Character->JumpCurrentCount < Character->JumpMaxCount && InputJump == true)
+	{
+		StateMachine->ChangeState(ESmashCharacterStateID::DoubleJump);
+	}
 }

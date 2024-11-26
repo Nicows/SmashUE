@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Characters/SmashCharacterState.h"
-#include "SmashCharacterStateFall.generated.h"
+#include "SmashCharacterStateDoubleJump.generated.h"
 
 
 UCLASS(ClassGroup=(SmashCharacterState), meta=(BlueprintSpawnableComponent))
-class SMASHUE_API USmashCharacterStateFall : public USmashCharacterState
+class SMASHUE_API USmashCharacterStateDoubleJump : public USmashCharacterState
 {
 	GENERATED_BODY()
 
 public:
 	virtual ESmashCharacterStateID GetStateID() override;
-	
+
 	virtual void StateEnter(ESmashCharacterStateID PreviousStateID) override;
 
 	virtual void StateExit(ESmashCharacterStateID NextStateID) override;
@@ -24,20 +24,11 @@ public:
 	virtual void ChangeStateAnim() override;
 
 	UPROPERTY(EditAnywhere)
-	float FallHorizontalMoveSpeed;
+	float JumpMaxHeight;
 
 	UPROPERTY(EditAnywhere)
-	float FallAirControl;
-
-	UPROPERTY(EditAnywhere)
-	float FallGravityScale;
-
-	UPROPERTY(EditAnywhere)
-	float FallFastGravityScale;
+	float JumpDuration;
 	
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UAnimMontage> AnimDoubleJump;
-	
-	UFUNCTION()
-	void OnInputJump(bool InputJump);
+	TObjectPtr<UAnimMontage> AnimBackwardJump;
 };

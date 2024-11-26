@@ -42,6 +42,5 @@ void USmashCharacterState::StateTick(float DeltaTime)
 
 void USmashCharacterState::ChangeStateAnim()
 {
-	if(AnimState == nullptr) return;
-		Character->PlayAnimMontage(AnimState);
+
 }

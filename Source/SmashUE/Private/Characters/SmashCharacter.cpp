@@ -167,7 +167,7 @@ void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* Enha
 	{
 		EnhancedInputComponent->BindAction(
 			InputData->InputActionJump,
-			ETriggerEvent::Triggered,
+			ETriggerEvent::Started,
 			this,
 			&ASmashCharacter::OnInputJump
 		);

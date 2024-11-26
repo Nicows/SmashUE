@@ -43,6 +43,8 @@ void USmashCharacterStateIdle::StateTick(float DeltaTime)
 void USmashCharacterStateIdle::ChangeStateAnim()
 {
 	Super::ChangeStateAnim();
+	if(AnimState == nullptr) return;
+	Character->PlayAnimMontage(AnimState);
 }
 
 void USmashCharacterStateIdle::OnInputMoveXFast(float InputMoveX)

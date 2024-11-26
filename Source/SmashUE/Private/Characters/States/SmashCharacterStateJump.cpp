@@ -21,6 +21,9 @@ void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID
 	Character->GetCharacterMovement()->AirControl = JumpAirControl;
 	Character->GetCharacterMovement()->JumpZVelocity = (2 * JumpMaxHeight) / (JumpDuration / 2);
 	Character->GetCharacterMovement()->MaxWalkSpeed = JumpWalkSpeed;
+	
+	Character->JumpMaxCount = 2;
+	Character->JumpCurrentCount = 0;
 	Character->Jump();
 }
 
@@ -41,7 +44,7 @@ void USmashCharacterStateJump::StateTick(float DeltaTime)
 
 	if (FMath::Abs(Character->GetInputMoveX()) >= GetDefault<USmashCharacterSettings>()->InputMoveXThreshold)
 	{
-		Character->SetOrientX(Character->GetInputMoveX());
+		// Character->SetOrientX(Character->GetInputMoveX());
 		Character->AddMovementInput(FVector::ForwardVector, Character->GetOrientX());
 	}
 		
@@ -51,4 +54,6 @@ void USmashCharacterStateJump::StateTick(float DeltaTime)
 void USmashCharacterStateJump::ChangeStateAnim()
 {
 	Super::ChangeStateAnim();
+	if(AnimState == nullptr) return;
+		Character->PlayAnimMontage(AnimState);
 }
