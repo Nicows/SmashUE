@@ -30,5 +30,8 @@ public:
 	float JumpDuration;
 	
 	UPROPERTY(EditAnywhere)
+	float JumpBackwardsForce;
+	
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<UAnimMontage> AnimBackwardJump;
 };
