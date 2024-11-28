@@ -57,18 +57,16 @@ void AMatchGameMode::SpawnCharacter(const TArray<AArenaPlayerStart*>& SpawnPoint
 
 		// Associe le joueur local au personnage
 		
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), PlayerIndex);
 
-		APlayerController* PlayerController = GetGameInstance()->GetLocalPlayerByIndex(PlayerIndex)->GetPlayerController(GetGameInstance()->GetWorld());
-
-		
-		if (PlayerController == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("PlayerController %d not found in AMatchGameMode::SpawnCharacter"), PlayerIndex);
-		}
-		else
+		if (PlayerController != nullptr)
 		{
 			PlayerController->Possess(NewCharacter);
 		}
+		// else
+		// {
+		// 	UE_LOG(LogTemp, Warning, TEXT("PlayerController %d not found in AMatchGameMode::SpawnCharacter"), PlayerIndex);
+		// }
 
 		NewCharacter->FinishSpawning(SpawnPoint->GetTransform());
 		CharactersInsideArena.Add(NewCharacter);
@@ -114,12 +112,12 @@ void AMatchGameMode::BeginPlay()
 		TSubclassOf<ASmashCharacter> SmashCharacterClass = GetSmashCharacterClassFromInputType(InputType);
 		if (SmashCharacterClass == nullptr) continue;
 		
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			3.f,
-			FColor::Cyan,
-			SmashCharacterClass->GetFName().ToString()
-		);
+		// GEngine->AddOnScreenDebugMessage(
+		// 	-1,
+		// 	3.f,
+		// 	FColor::Cyan,
+		// 	SmashCharacterClass->GetFName().ToString()
+		// );
 	}
 }
 

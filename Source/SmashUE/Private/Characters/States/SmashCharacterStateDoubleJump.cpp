@@ -18,9 +18,11 @@ void USmashCharacterStateDoubleJump::StateEnter(ESmashCharacterStateID PreviousS
 	ChangeStateAnim();
 
 	Character->GetCharacterMovement()->JumpZVelocity = (2 * JumpMaxHeight) / (JumpDuration / 2);
-	Character->Jump();
-	if(FMathf::Round(Character->GetInputMoveX()) != FMathf::Round(Character->GetOrientX()) && Character->GetInputMoveX() != 0)
+	if(CanJumpBackwards())
 		Character->GetCharacterMovement()->AddImpulse(FVector::BackwardVector * JumpBackwardsForce, true);
+
+	Character->JumpMaxHoldTime = JumpDuration;
+	Character->Jump();
 }
 
 void USmashCharacterStateDoubleJump::StateExit(ESmashCharacterStateID NextStateID)
@@ -32,7 +34,7 @@ void USmashCharacterStateDoubleJump::StateExit(ESmashCharacterStateID NextStateI
 void USmashCharacterStateDoubleJump::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
-	if(Character->GetVelocity().Z < 0)
+	if(Character->JumpForceTimeRemaining <= 0)
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::Fall);
 	}
@@ -46,11 +48,14 @@ void USmashCharacterStateDoubleJump::ChangeStateAnim()
 {
 	Super::ChangeStateAnim();
 	if(AnimState == nullptr || AnimBackwardJump == nullptr) return;
-	AnimBackwardJump->bLoop = true;
 
-	UE_LOG(LogTemp, Display, TEXT("GetInputMoveX= %f, GetOrientX= %f"), FMathf::Round(Character->GetInputMoveX()), FMathf::Round(Character->GetOrientX()));
-	if(FMathf::Round(Character->GetInputMoveX()) != FMathf::Round(Character->GetOrientX()) && Character->GetInputMoveX() != 0)
+	if(CanJumpBackwards())
 		Character->PlayAnimMontage(AnimBackwardJump);
 	else
 		Character->PlayAnimMontage(AnimState);
+}
+
+bool USmashCharacterStateDoubleJump::CanJumpBackwards() const
+{
+	return (FMathf::Round(Character->GetInputMoveX()) != FMathf::Round(Character->GetOrientX())) && Character->GetInputMoveX() != 0;
 }

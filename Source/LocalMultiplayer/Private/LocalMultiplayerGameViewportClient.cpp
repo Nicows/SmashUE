@@ -7,6 +7,7 @@
 #include "LocalMultiplayerSubsystem.h"
 #include "ViewportClient.h"
 #include "GameFramework/PlayerInput.h"
+#include "Kismet/GameplayStatics.h"
 #include "WorldPartition/WorldPartitionBuilder.h"
 
 void ULocalMultiplayerGameViewportClient::PostInitProperties()

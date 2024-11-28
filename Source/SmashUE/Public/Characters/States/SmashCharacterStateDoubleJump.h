@@ -23,6 +23,9 @@ public:
 
 	virtual void ChangeStateAnim() override;
 
+	UFUNCTION()
+	bool CanJumpBackwards() const;
+
 	UPROPERTY(EditAnywhere)
 	float JumpMaxHeight;
 

@@ -49,12 +49,12 @@ void USmashCharacterStateFall::ChangeStateAnim()
 {
 	Super::ChangeStateAnim();
 	if(AnimState == nullptr) return;
-		Character->PlayAnimMontage(AnimState);
+
+	Character->PlayAnimMontage(AnimState);
 }
 
 void USmashCharacterStateFall::OnInputJump(bool InputJump)
 {
-	UE_LOG(LogTemp, Display, TEXT("USmashCharacterStateFall::OnInputJump: JumpCurrentCount %d, JumpMaxCount %d, InputJump %d"), Character->JumpCurrentCount, Character->JumpMaxCount, InputJump);
 	if(Character->JumpCurrentCount < Character->JumpMaxCount && InputJump == true)
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::DoubleJump);

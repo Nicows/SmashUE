@@ -22,7 +22,8 @@ void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID
 	Character->GetCharacterMovement()->JumpZVelocity = (2 * JumpMaxHeight) / (JumpDuration / 2);
 	Character->GetCharacterMovement()->MaxWalkSpeed = JumpWalkSpeed;
 	
-	Character->JumpMaxCount = 2;
+	Character->JumpMaxHoldTime = JumpDuration;
+	Character->JumpMaxCount = MaxJumpCount;
 	Character->JumpCurrentCount = 0;
 	Character->Jump();
 }
@@ -36,8 +37,7 @@ void USmashCharacterStateJump::StateExit(ESmashCharacterStateID NextStateID)
 void USmashCharacterStateJump::StateTick(float DeltaTime)
 {
 	Super::StateTick(DeltaTime);
-	Character->JumpKeyHoldTime += DeltaTime;
-	if(!Character->GetInputJump() || Character->GetVelocity().Z < 0)
+	if(!Character->GetInputJump() || Character->JumpForceTimeRemaining <= 0)
 	{
 		StateMachine->ChangeState(ESmashCharacterStateID::Fall);
 	}
@@ -55,5 +55,5 @@ void USmashCharacterStateJump::ChangeStateAnim()
 {
 	Super::ChangeStateAnim();
 	if(AnimState == nullptr) return;
-		Character->PlayAnimMontage(AnimState);
+	Character->PlayAnimMontage(AnimState);
 }

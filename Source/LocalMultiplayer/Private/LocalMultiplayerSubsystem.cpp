@@ -189,7 +189,6 @@ void ULocalMultiplayerSubsystem::AssignGamepadInputMapping(int PlayerIndex,
 		FString OutError;
 		LocalPlayer = GameInstance->CreateLocalPlayer(PlayerIndex,  OutError, true);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("GetGameInstance()->GetNumLocalPlayers %d"), GameInstance->GetNumLocalPlayers());
 	
     APlayerController* PlayerController = LocalPlayer->GetPlayerController(GameInstance->GetWorld());
     if (!PlayerController)
