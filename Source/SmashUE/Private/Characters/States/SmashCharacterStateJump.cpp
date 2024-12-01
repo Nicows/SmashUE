@@ -21,6 +21,8 @@ void USmashCharacterStateJump::StateEnter(ESmashCharacterStateID PreviousStateID
 	Character->GetCharacterMovement()->AirControl = JumpAirControl;
 	Character->GetCharacterMovement()->JumpZVelocity = (2 * JumpMaxHeight) / (JumpDuration / 2);
 	Character->GetCharacterMovement()->MaxWalkSpeed = JumpWalkSpeed;
+	Character->GetCharacterMovement()->GravityScale = GravityScale;
+	
 	
 	Character->JumpMaxHoldTime = JumpDuration;
 	Character->JumpMaxCount = MaxJumpCount;
@@ -55,5 +57,6 @@ void USmashCharacterStateJump::ChangeStateAnim()
 {
 	Super::ChangeStateAnim();
 	if(AnimState == nullptr) return;
+	
 	Character->PlayAnimMontage(AnimState);
 }

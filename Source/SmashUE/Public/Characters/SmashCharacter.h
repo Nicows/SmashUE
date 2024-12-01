@@ -78,10 +78,12 @@ protected:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputMoveXEvent, float, InputMoveX);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputJumpEvent, bool, InputJump);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInputAttackEvent, bool, InputAttack);
 	
 public:
 	float GetInputMoveX() const;
 	float GetInputJump() const;
+	float GetInputSpecialAttack() const;
 
 	UPROPERTY()
 	FInputMoveXEvent InputMoveXFastEvent;
@@ -89,6 +91,8 @@ public:
 	UPROPERTY()
 	FInputJumpEvent InputJumpEvent;
 
+	UPROPERTY()
+	FInputAttackEvent InputSpecialAttackEvent;
 	
 
 protected:
@@ -97,6 +101,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	bool InputJump = false;
+	
+	UPROPERTY(EditAnywhere)
+	bool InputSpecialAttack = false;
 
 private:
 	void BindInputMoveXAxisAndActions(UEnhancedInputComponent* EnhancedInputComponent);
@@ -106,6 +113,8 @@ private:
 	void OnInputMoveXFast(const FInputActionValue& InputActionValue);
 	
 	void OnInputJump(const FInputActionValue& InputActionValue);
+	
+	void OnInputSpecialAttack(const FInputActionValue& InputActionValue);
 
 #pragma endregion
 #pragma region Camera Target

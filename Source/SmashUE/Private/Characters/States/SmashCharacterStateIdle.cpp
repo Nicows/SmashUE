@@ -20,6 +20,7 @@ void USmashCharacterStateIdle::StateEnter(ESmashCharacterStateID PreviousStateID
 
 	Character->InputMoveXFastEvent.AddDynamic(this, &USmashCharacterStateIdle::OnInputMoveXFast);
 	Character->InputJumpEvent.AddDynamic(this, &USmashCharacterStateIdle::OnInputJump);
+	Character->InputSpecialAttackEvent.AddDynamic(this, &USmashCharacterStateIdle::OnInputSpecialAttack);
 }
 
 void USmashCharacterStateIdle::StateExit(ESmashCharacterStateID NextStateID)
@@ -28,6 +29,7 @@ void USmashCharacterStateIdle::StateExit(ESmashCharacterStateID NextStateID)
 
 	Character->InputMoveXFastEvent.RemoveDynamic(this, &USmashCharacterStateIdle::OnInputMoveXFast);
 	Character->InputJumpEvent.RemoveDynamic(this, &USmashCharacterStateIdle::OnInputJump);
+	Character->InputSpecialAttackEvent.RemoveDynamic(this, &USmashCharacterStateIdle::OnInputSpecialAttack);
 }
 
 void USmashCharacterStateIdle::StateTick(float DeltaTime)
@@ -54,6 +56,11 @@ void USmashCharacterStateIdle::OnInputMoveXFast(float InputMoveX)
 
 void USmashCharacterStateIdle::OnInputJump(bool InputJump)
 {
-	if(Character->GetCharacterMovement()->IsMovingOnGround())
+	if(Character->GetCharacterMovement()->IsMovingOnGround() && InputJump)
 		StateMachine->ChangeState(ESmashCharacterStateID::Jump);
+}
+
+void USmashCharacterStateIdle::OnInputSpecialAttack(bool InputSpecialAttack)
+{
+	StateMachine->ChangeState(ESmashCharacterStateID::NeutralSpecial);
 }

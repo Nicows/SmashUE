@@ -52,7 +52,7 @@ void USmashCharacterStateRun::ChangeStateAnim()
 
 void USmashCharacterStateRun::OnInputJump(bool InputJump)
 {
-	if(Character->GetCharacterMovement()->IsMovingOnGround())
+	if(Character->GetCharacterMovement()->IsMovingOnGround() && InputJump)
 		StateMachine->ChangeState(ESmashCharacterStateID::Jump);
 }
 

@@ -34,6 +34,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float JumpAirControl;
+
+	UPROPERTY(EditAnywhere)
+	float GravityScale;
 	
 	UPROPERTY(EditAnywhere)
 	int MaxJumpCount;

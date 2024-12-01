@@ -28,4 +28,7 @@ public:
 	
 	UFUNCTION()
 	void OnInputJump(bool InputJump);
+	
+	UFUNCTION()
+	void OnInputSpecialAttack(bool InputSpecialAttack);
 };

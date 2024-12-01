@@ -123,6 +123,11 @@ float ASmashCharacter::GetInputJump() const
 	return InputJump;
 }
 
+float ASmashCharacter::GetInputSpecialAttack() const
+{
+	return InputSpecialAttack;
+}
+
 void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* EnhancedInputComponent)
 {
 	if (InputData == nullptr) return;
@@ -148,6 +153,31 @@ void ASmashCharacter::BindInputMoveXAxisAndActions(UEnhancedInputComponent* Enha
 			ETriggerEvent::Completed,
 			this,
 			&ASmashCharacter::OnInputMoveX
+		);
+		
+	}
+
+	if (InputData->InputActionAttack)
+	{
+		EnhancedInputComponent->BindAction(
+			InputData->InputActionAttack,
+			ETriggerEvent::Started,
+			this,
+			&ASmashCharacter::OnInputSpecialAttack
+		);
+		
+		EnhancedInputComponent->BindAction(
+			InputData->InputActionAttack,
+			ETriggerEvent::Triggered,
+			this,
+			&ASmashCharacter::OnInputSpecialAttack
+		);
+		
+		EnhancedInputComponent->BindAction(
+			InputData->InputActionAttack,
+			ETriggerEvent::Completed,
+			this,
+			&ASmashCharacter::OnInputSpecialAttack
 		);
 		
 	}
@@ -209,5 +239,12 @@ bool ASmashCharacter::IsFollowable()
 FVector ASmashCharacter::GetFollowPosition()
 {
 	return GetActorLocation();
+}
+
+
+void ASmashCharacter::OnInputSpecialAttack(const FInputActionValue& InputActionValue)
+{
+	InputSpecialAttack = InputActionValue.Get<bool>();
+	InputSpecialAttackEvent.Broadcast(InputSpecialAttack);
 }
 

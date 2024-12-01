@@ -30,7 +30,6 @@ void AMatchGameMode::SpawnCharacter(const TArray<AArenaPlayerStart*>& SpawnPoint
 
 	if (SpawnPoints.IsEmpty()) return;
 	
-	// Associe chaque joueur local à un point de spawn
 	for (int32 PlayerIndex = 0; PlayerIndex < SpawnPoints.Num(); PlayerIndex++)
 	{
 		if (!SpawnPoints.IsValidIndex(PlayerIndex)) continue;
@@ -38,11 +37,9 @@ void AMatchGameMode::SpawnCharacter(const TArray<AArenaPlayerStart*>& SpawnPoint
 		AArenaPlayerStart* SpawnPoint = SpawnPoints[PlayerIndex];
 		EAutoReceiveInput::Type InputType = SpawnPoint->AutoReceiveInput.GetValue();
 
-		// Détermine la classe de personnage à spawn pour ce type d'entrée
 		TSubclassOf<ASmashCharacter> SmashCharacterClass = GetSmashCharacterClassFromInputType(InputType);
 		if (SmashCharacterClass == nullptr) continue;
 
-		// Spawn le personnage
 		ASmashCharacter* NewCharacter = GetWorld()->SpawnActorDeferred<ASmashCharacter>(
 			SmashCharacterClass,
 			SpawnPoint->GetTransform()
@@ -50,12 +47,10 @@ void AMatchGameMode::SpawnCharacter(const TArray<AArenaPlayerStart*>& SpawnPoint
 
 		if (NewCharacter == nullptr) continue;
 
-		// Configure le personnage
 		NewCharacter->InputData = InputData;
 		NewCharacter->AutoPossessPlayer = SpawnPoint->AutoReceiveInput;
 		NewCharacter->SetOrientX(SpawnPoint->GetStartOrientX());
 
-		// Associe le joueur local au personnage
 		
 		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), PlayerIndex);
 

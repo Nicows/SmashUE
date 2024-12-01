@@ -60,6 +60,6 @@ void USmashCharacterStateWalk::OnInputMoveXFast(float InputMoveX)
 
 void USmashCharacterStateWalk::OnInputJump(bool InputJump)
 {
-	if(Character->GetCharacterMovement()->IsMovingOnGround())
+	if(Character->GetCharacterMovement()->IsMovingOnGround() && InputJump)
 		StateMachine->ChangeState(ESmashCharacterStateID::Jump);
 }
